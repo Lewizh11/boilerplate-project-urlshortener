@@ -8,8 +8,8 @@ const app = express()
 // Basic Configuration
 const port = process.env.PORT || 3000
 
-app.use(express.json())
 
+app.use(express.urlencoded({extended: false}))
 app.use(cors())
 
 app.use("/public", express.static(`${process.cwd()}/public`))
@@ -23,8 +23,9 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" })
 })
 
+
 app.post("/api/shorturl", (req, res) => {
-  const { url } = req.body
+  const { url } =  req.body
   const getHostname = /https:\/\/(.*)\//.exec(url)
 
   if (!getHostname) return res.status(400).json({ error: "invalid url" })
