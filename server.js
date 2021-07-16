@@ -25,12 +25,12 @@ app.get("/api/hello", function (req, res) {
 
 
 app.post("/api/shorturl", (req, res) => {
-  const { url } =  req.body
-  const getHostname = /https:\/\/(.*)\//.exec(url)
+  const url =  req.body.url
+  const getHostname = /(?!(w+)\.)\w*(?:\w+\.)+\w+/gm.exec(url)
 
   if (!getHostname) return res.status(400).json({ error: "invalid url" })
 
-  dns.lookup(getHostname[1], async (err, _address, _family) => {
+  dns.lookup(getHostname[0], async (err, _address, _family) => {
     if (err) return res.status(400).json({ error: "invalid url" })
 
     const findUrl = await model.findOne({ original_url: url })
@@ -53,12 +53,15 @@ app.post("/api/shorturl", (req, res) => {
 
 app.get("/api/shorturl/:short_url", async (req, res) => {
   const { short_url } = req.params
-  const getURL = await model.findOne({ short_url })
+  try{
+  	const getURL = await model.findOne({ short_url })
 
-  if(getURL)
-    return res.redirect(getURL.original_url)
-  
-  res.status(400).send("Not found")
+	  if(getURL)
+	    return res.redirect(getURL.original_url)	  
+  	res.status(400).send("Not found")
+  } catch {
+  	res.status(400).send("Not found")
+  }
 })
 
 app.listen(port, function () {
