@@ -28,11 +28,14 @@ app.post("/api/shorturl", (req, res) => {
   const url =  req.body.url
   const getHostname = /(?!(w+)\.)\w*(?:\w+\.)+\w+/gm.exec(url)
 
-  if (!getHostname) return res.status(400).json({ error: "invalid url" })
+  if (!getHostname) return res.json({ error: "invalid url" })
 
   dns.lookup(getHostname[0], async (err, _address, _family) => {
-    if (err) return res.status(400).json({ error: "invalid url" })
-
+    if (err) return res..json({ error: "invalid url" })
+		
+    if(url.match(/https|http/) === null)
+      return res.json({ error: 'invalid url' })
+      
     const findUrl = await model.findOne({ original_url: url })
 
     if (findUrl)
